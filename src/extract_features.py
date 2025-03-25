@@ -88,11 +88,9 @@ def extract_features(filepath):
             'Subsystem': pe.OPTIONAL_HEADER.Subsystem,
         })
 
-        # DLL Characteristics (bit flags)
         for i in range(11):
             extracted[f'OH_DLLchar{i}'] = (pe.OPTIONAL_HEADER.DllCharacteristics >> i) & 1
 
-        # Stack/Heap features
         extracted.update({
             'SizeOfStackReserve': pe.OPTIONAL_HEADER.SizeOfStackReserve,
             'SizeOfStackCommit': pe.OPTIONAL_HEADER.SizeOfStackCommit,
@@ -108,13 +106,11 @@ def extract_features(filepath):
             'non_sus_sections': pe.FILE_HEADER.NumberOfSections - sus_sections,
         })
 
-        # Packer info (placeholder)
         extracted.update({
             'packer': 'Unknown',
             'packer_type': 'Unknown',
         })
 
-        # Entropy calculations
         extracted.update({
             'E_text': calculate_entropy(pe.sections[0].get_data()) if len(pe.sections) > 0 else 0,
             'E_data': calculate_entropy(pe.sections[1].get_data()) if len(pe.sections) > 1 else 0,
