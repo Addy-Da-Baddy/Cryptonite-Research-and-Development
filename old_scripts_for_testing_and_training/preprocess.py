@@ -5,7 +5,6 @@ from sklearn.preprocessing import MinMaxScaler
 import pickle
 
 def preprocess_data(input_path, scaler_path="scaler.pkl"):
-    # Load dataset
     df = pd.read_csv(input_path)
 
     df.drop(columns=['packer_type', 'packer'], inplace=True, errors='ignore')
@@ -16,13 +15,11 @@ def preprocess_data(input_path, scaler_path="scaler.pkl"):
     numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
 
     if os.path.exists(scaler_path):
-        # Load the scaler if it exists
         with open(scaler_path, 'rb') as f:
             scaler = pickle.load(f)
         df[numeric_cols] = scaler.transform(df[numeric_cols])
         print(f"Loaded existing scaler from: {scaler_path}")
     else:
-        # Create and save the scaler if it doesn't exist
         scaler = MinMaxScaler()
         df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
         with open(scaler_path, 'wb') as f:

@@ -22,7 +22,6 @@ class MalwareNN(nn.Module):
         return x
 
 def get_risk_tier(probability):
-    """Determine risk level based on malware probability."""
     if probability <= 20:
         return "🟢 SAFE - No threats detected."
     elif probability <= 40:
@@ -55,7 +54,7 @@ def predict():
         with torch.no_grad():
             nn_proba = nn_model(X_tensor).cpu().numpy().flatten()
 
-        final_proba = (xgb_proba + nn_proba) / 2
+        final_proba = nn_proba 
 
         safe_probability = final_proba[0] * 100
         malware_probability = 100 - safe_probability

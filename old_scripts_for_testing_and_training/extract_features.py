@@ -4,7 +4,6 @@ import pefile
 import numpy as np
 import subprocess
 
-# Feature order (as given)
 FEATURES = [
     'e_cblp', 'e_cp', 'e_cparhdr', 'e_maxalloc', 'e_sp', 'e_lfanew',
     'NumberOfSections', 'CreationYear', 'FH_char0', 'FH_char1', 'FH_char2',
@@ -29,7 +28,6 @@ def extract_features(filepath):
     try:
         pe = pefile.PE(filepath)
         
-        # Extract features
         extracted = {
             "e_cblp": pe.DOS_HEADER.e_cblp,
             "e_cp": pe.DOS_HEADER.e_cp,
@@ -38,14 +36,12 @@ def extract_features(filepath):
             "e_sp": pe.DOS_HEADER.e_sp,
             "e_lfanew": pe.DOS_HEADER.e_lfanew,
             "NumberOfSections": pe.FILE_HEADER.NumberOfSections,
-            "CreationYear": pe.FILE_HEADER.TimeDateStamp // (365 * 24 * 60 * 60) + 1970,  # Convert timestamp to year
+            "CreationYear": pe.FILE_HEADER.TimeDateStamp // (365 * 24 * 60 * 60) + 1970, 
         }
 
-        # File Header Characteristics (Bitflags)
         for i in range(15):
             extracted[f"FH_char{i}"] = (pe.FILE_HEADER.Characteristics >> i) & 1
 
-        # Optional Header Features
         extracted.update({
             "MajorLinkerVersion": pe.OPTIONAL_HEADER.MajorLinkerVersion,
             "MinorLinkerVersion": pe.OPTIONAL_HEADER.MinorLinkerVersion,
@@ -54,7 +50,7 @@ def extract_features(filepath):
             "SizeOfUninitializedData": pe.OPTIONAL_HEADER.SizeOfUninitializedData,
             "AddressOfEntryPoint": pe.OPTIONAL_HEADER.AddressOfEntryPoint,
             "BaseOfCode": pe.OPTIONAL_HEADER.BaseOfCode,
-            "BaseOfData": getattr(pe.OPTIONAL_HEADER, "BaseOfData", 0),  # Some PE files don't have BaseOfData
+            "BaseOfData": getattr(pe.OPTIONAL_HEADER, "BaseOfData", 0), 
             "ImageBase": pe.OPTIONAL_HEADER.ImageBase,
             "SectionAlignment": pe.OPTIONAL_HEADER.SectionAlignment,
             "FileAlignment": pe.OPTIONAL_HEADER.FileAlignment,
@@ -70,11 +66,9 @@ def extract_features(filepath):
             "Subsystem": pe.OPTIONAL_HEADER.Subsystem,
         })
 
-        # Optional Header DLL Characteristics (Bitflags)
         for i in range(11):
             extracted[f"OH_DLLchar{i}"] = (pe.OPTIONAL_HEADER.DllCharacteristics >> i) & 1
 
-        # Stack & Heap Sizes
         extracted.update({
             "SizeOfStackReserve": pe.OPTIONAL_HEADER.SizeOfStackReserve,
             "SizeOfStackCommit": pe.OPTIONAL_HEADER.SizeOfStackCommit,
@@ -107,22 +101,17 @@ def extract_features(filepath):
         # File properties
         extracted["filesize"] = len(pe.__data__)
         extracted["E_file"] = entropy(pe.__data__)
-        extracted["fileinfo"] = 1  # Dummy placeholder
-        extracted["class"] = 0  # Default unknown class
-
-        # Ensure the feature order is correct
+        extracted["fileinfo"] = 1  
+        extracted["class"] = -9999
         data = {feature: extracted.get(feature, 0) for feature in FEATURES}
 
-        # Save to CSV
         df = pd.DataFrame([data])
         df.to_csv("extracted.csv", index=False)
         print("\n[+] Extracted features saved to extracted.csv")
 
-        # Run preprocessing
         print("\n[+] Running preprocessing on extracted.csv...")
         subprocess.run(["python", "preprocess.py", "extracted.csv"], check=True)
 
-        # Rename processed file
         import os
         if os.path.exists("preprocessed.csv"):
             os.rename("preprocessed.csv", "preprocessed_extracted.csv")

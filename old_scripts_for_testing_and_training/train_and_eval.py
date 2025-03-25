@@ -37,7 +37,6 @@ def train_and_evaluate(device):
     xgb_model = xgb.XGBClassifier(n_estimators=100, learning_rate=0.1, use_label_encoder=False, eval_metric="logloss")
     xgb_model.fit(X_train, y_train)
 
-    # Save XGBoost model
     joblib.dump(xgb_model, "Malnet_XGB.pkl")
 
     X_train_xgb = xgb_model.predict_proba(X_train)[:, 1].reshape(-1, 1)

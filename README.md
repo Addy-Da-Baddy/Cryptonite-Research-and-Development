@@ -1,183 +1,177 @@
 # Chief Warden
+# ![Chief Warden Logo](logo.png)  
+## About the Project
+Chief Warden is a simple CLI-based malware classification tool. This project is built by an engineering student learning digital forensics and AI, combining both fields in a practical way. It also serves as an opportunity to explore CLI tool deployment. 
 
-![Chief Warden Logo](https://raw.githubusercontent.com/username/chief-warden/main/assets/logo.png)
+This is a simple learning project
 
-> Detecting malicious executables through advanced sandbox behavioral analysis and machine learning
+The model is inspired by **Stripe's Fraud Detection System** and applies a **Hybrid XGBoost + Neural Network** approach to classify Portable Executable (PE) files as either malware or safe based on static analysis.
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![GitHub issues](https://img.shields.io/github/issues/username/chief-warden)](https://github.com/username/chief-warden/issues)
-
-## Overview
-
-Chief Warden is an open-source command-line tool that analyzes executable files to detect potential malware. By executing binaries in a sandboxed environment and analyzing their behavior using ensemble machine learning techniques, Chief Warden provides robust threat detection with detailed explainability.
-
-The project leverages advanced neural networks and gradient boosting techniques similar to those used in enterprise fraud detection systems (like Stripe's), combining the strengths of both approaches to maximize detection accuracy while minimizing false positives.
-
-## Features
-
-### Current Version (v0.1)
-
-- [x] Cleaned and processed CLAMP dataset for model training
-- [x] Created baseline XGBoost model
-- [ ] Cuckoo Sandbox integration for safe executable analysis
-- [ ] Command-line interface (CLI) for Linux
-- [ ] Static analysis of sandbox behavior data
-- [ ] Explainability module showing detection reasoning
-- [ ] Ensemble model combining DNN and XGBoost
-- [ ] GPU acceleration for neural network inference
-
-### Planned Features
-
-- [ ] Dynamic behavioral analysis
-- [ ] GNN/LSTM models for API call sequence analysis
-- [ ] Integration with larger malware datasets
-- [ ] Enhanced explainability with LLM backend
-- [ ] Docker containerization for easy deployment
-- [ ] Windows support
-- [ ] Real-time monitoring mode
-- [ ] Threat intelligence feed integration
-- [ ] Network behavioral analysis
-- [ ] Web API for remote analysis
-- [ ] Integration with SIEM systems
-- [ ] Multi-architecture support (ARM, x86)
-- [ ] Batch processing capabilities
-
-## Architecture
-
-Chief Warden consists of four main components:
-
-1. **Sandbox Environment**: Executes binaries in an isolated environment to prevent system infection and logs behavioral data
-2. **Feature Extraction**: Transforms raw behavioral logs into machine learning features
-3. **ML Engine**: Processes extracted features using ensemble models to classify potential threats
-4. **Explainability Module**: Provides human-readable explanations of detection decisions
+---
 
 
-### Sandbox Technology
 
-Chief Warden utilizes Cuckoo Sandbox for creating an isolated execution environment. This prevents potentially malicious code from affecting the host system while allowing for detailed behavioral logging including:
+## Technical Details
+- **Model**: Hybrid XGBoost + Neural Network from static analysis
+- **Risk Assessment**: Color-coded threat level classification with emoji visualization
 
-- System calls
-- File operations
-- Network activity
-- Process creation
-- Memory operations
-- Registry modifications (when analyzing Windows executables through Wine)
+---
 
-### Machine Learning Models
+## System Requirements
 
-Chief Warden employs an ensemble approach combining:
+- **Operating System**: Windows 10/11 (Cross-platform support planned)
+- **Python Version**: 3.8 or higher
+- **Hardware**:
+  - Minimum: 4GB RAM, 2GHz CPU
+  - Recommended: CUDA-compatible GPU for neural network acceleration
+- **Disk Space**: 500MB (1GB recommended for custom model training)
 
-1. **Deep Neural Networks**: Multi-layer perceptrons designed to identify complex patterns in behavioral data
-2. **XGBoost**: Gradient boosting for efficient feature importance analysis and high accuracy on structured data
-
-This hybrid approach allows us to benefit from both the pattern recognition strengths of neural networks and the feature importance capabilities of tree-based models.
+---
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/Addy-Da-Baddy/ChiefWarden
-cd chief-warden
+### Quick Install (For End Users)
 
-# Set up a virtual environment
-python -m venv env
-source env/bin/activate  # On Windows: env\Scripts\activate
+1. **Install Python** (if not already installed):
+   - Download from [python.org](https://www.python.org/downloads/)
+   - Check "Add Python to PATH" during installation
 
-# Install dependencies
-pip install -r requirements.txt
+2. **Install Chief Warden**:
+   ```powershell
+   pip install git+https://github.com/Addy-Da-Baddy/ChiefWarden.git
+   ```
+3. **Verify Installation**:
+   ```powershell
+   ChiefWarden --version
+   ```
 
-# Install Cuckoo Sandbox dependencies
-sudo ./scripts/install_cuckoo_deps.sh
+### Developer Installation
+
+1. **Clone the repository**:
+   ```powershell
+   https://github.com/Addy-Da-Baddy/ChiefWarden.git
+   cd ChiefWarden
+   ```
+
+2. **Create a virtual environment**:
+   ```powershell
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```powershell
+   pip install -r requirements.txt
+   python setup.py install
+   ```
+
+---
+
+## Usage Guide
+
+### Basic Malware Scan
+```powershell
+ChiefWarden --predict "C:\path\to\suspicious.exe"
 ```
-
-### Docker (Future Release)
-
-```bash
-# Pull the Docker image
-docker pull username/chief-warden:latest
-
-# Run Chief Warden in a container
-docker run -v /path/to/samples:/samples username/chief-warden analyze /samples/executable.bin
+**Sample Output:**
 ```
-
-## Usage
-
-```bash
-# Basic usage
-chief-warden analyze path/to/executable.bin
-
-# Specify model to use
-chief-warden analyze --model ensemble path/to/executable.bin
-
-# Enable verbose output with explanation
-chief-warden analyze --verbose --explain path/to/executable.bin
-
-# Use GPU acceleration
-chief-warden analyze --gpu path/to/executable.bin
-
-# Specify sandbox timeout (in seconds)
-chief-warden analyze --timeout 120 path/to/executable.bin
-```
-
-### Example Output
-
-```
-Chief Warden v0.1
-Analyzing: malicious_sample.exe
-
-[+] Sandbox execution complete
+[+] Analyzing: suspicious.exe
 [+] Feature extraction complete
-[+] Model prediction: HIGH RISK (0.94)
-
-Explanation:
-- Attempts to establish persistence through registry modification
-- Creates suspicious files in system directories
-- Initiates outbound connections to known malicious IPs
-- Encryption of user documents detected
-- Process injection behavior observed
-
-Execution terminated. See full report at: /tmp/chief-warden-report-12345.html
+[+] The file has an 87.34% chance of being malware.
+[+] Risk Assessment: 🔴 HIGH RISK - Likely malware, avoid execution.
 ```
 
-## Development Roadmap
+### Advanced Options
 
-### Near Term
-- Complete baseline models and CLI interface
-- Integrate Cuckoo Sandbox
-- Release alpha version for Linux
+**Train Custom Models**:
+```powershell
+ChiefWarden --train "C:\path\to\dataset.csv" -o "C:\custom_models"
+```
 
-### Mid Term
-- Add dynamic analysis capabilities
-- Implement GNN/LSTM models
-- Docker containerization
-- Enhance explainability module
+**Use Custom Models**:
+```powershell
+ChiefWarden --predictCustom "C:\custom_models" "C:\path\to\file.exe"
+```
 
-### Long Term
-- Add Windows support
-- Implement LLM-based explainability
-- Web API and SIEM integration
-- Comprehensive documentation and tutorials
+### Command Reference
 
-This roadmap is approximate and may change based on community feedback and developer availability.
+| Command         | Description                    | Example                                      |
+|----------------|--------------------------------|----------------------------------------------|
+| `predict`       | Scan with default models      | `ChiefWarden --predict file.exe`             |
+| `predictCustom` | Scan with custom models       | `ChiefWarden --predictCustom model_folder file.exe` |
+| `train`        | Train new models              | `ChiefWarden --train data.csv -o output_folder` |
 
-## Contributing
+---
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Project Structure
+```plaintext
+ChiefWarden/
+├── models/               # Pre-trained model files
+├── src/                  # Core application code
+├── requirements.txt      # Python dependencies
+├── setup.py              # Installation script
+└── README.md             # This document
+```
 
+---
+
+## Limitations
+- **Currently Windows-only** (PE files only)
+- **Static analysis only** (no behavioral analysis)
+- **Model accuracy depends on training data quality**
+- **Requires Python environment setup**
+
+---
+
+## Roadmap
+
+### Near-Term Objectives
+- Improve model explainability using SHAP techniques
+- Enhance feature extraction algorithms
+- Optimize training pipeline efficiency
+
+### Long-Term Vision
+- Implement dynamic sandboxing capabilities
+- Develop AI-powered forensic reporting
+- Integrate Large Language Model insights
+- Expand cross-platform support
+- Advanced threat signature analysis
+
+---
+
+## Contribution
+
+While this is primarily a learning project, contributions are welcome! Please open an issue first to discuss potential changes.
+
+
+### How to Contribute
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Submit a pull request
+
+### Reporting Issues
+- Open GitHub issues for bug reports
+- Provide detailed information about encountered problems
+- Include system specifications and reproduction steps
+
+---
+
+## Limitations and Disclaimers
+- Potential for false positive/negative classifications
+- Currently limited to Windows platform
+- Continuous improvement based on community feedback
+
+---
 
 ## License
+Chief Warden is released under the **Apache License 2.0**. See the LICENSE file for complete details.
 
-Distributed under the Apache License 2.0. See `LICENSE` for more information.
+---
 
-## Acknowledgements
+## Contact and Support
+For questions, suggestions, or collaboration opportunities, please open a GitHub issue or contact the project maintainer.
 
-- CLAMP dataset providers
-- Cuckoo Sandbox project
-- PyTorch team
-- XGBoost developers
+---
+
