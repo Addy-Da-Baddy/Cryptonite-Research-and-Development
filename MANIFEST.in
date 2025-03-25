@@ -1,0 +1,11 @@
+# Include these files in source distribution but NOT in installation
+include LICENSE
+include README.md
+include logo.png
+
+# Include model files in both source and installation
+include models/default/*.pkl
+include models/default/*.pth
+
+# Exclude test scripts completely
+prune old_scripts_for_testing_and_training
